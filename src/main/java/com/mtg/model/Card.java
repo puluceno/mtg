@@ -1,25 +1,24 @@
 package com.mtg.model;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Card {
 
 	private final String name;
-	private final Map<String, Map<String, Integer>> result;
+	private List<Map<String, Object>> result;
 
-	public Card(String name, String store) {
+	public Card(String name, List<Map<String, Object>> result) {
 		this.name = name;
-		this.result = new HashMap<>();
-		this.result.put(store, new HashMap<>());
+		this.result = result;
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
-	public Map<String, Map<String, Integer>> getResult() {
-		return result;
+	public List<Map<String, Object>> getResult() {
+		return this.result;
 	}
 
 }
