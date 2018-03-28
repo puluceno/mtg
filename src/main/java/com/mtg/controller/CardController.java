@@ -1,5 +1,6 @@
 package com.mtg.controller;
 
+import org.pmw.tinylog.Logger;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,8 +12,9 @@ public class CardController {
 
 	private Crawler crawler = Crawler.getInstance();
 
-	@GetMapping("/card/{card}")
-	public String getCardPrice(@PathVariable String card) {
-		return crawler.findPrices(card);
+	@GetMapping("/card/{cardName}")
+	public String getCardPrice(@PathVariable String cardName) {
+		Logger.info("Requested data for ".concat(cardName).concat(" ."));
+		return crawler.findPrices(cardName);
 	}
 }

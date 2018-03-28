@@ -2,16 +2,18 @@ package com.mtg.crawler;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.slf4j.LoggerFactory;
+import org.pmw.tinylog.Logger;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
-import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.SilentCssErrorHandler;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.DomElement;
@@ -20,18 +22,21 @@ import com.gargoylesoftware.htmlunit.html.HtmlTable;
 import com.gargoylesoftware.htmlunit.html.HtmlTableHeaderCell;
 import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
 import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
+import com.jsoniter.JsonIterator;
 import com.jsoniter.output.JsonStream;
+import com.mtg.config.StaticConfig;
 import com.mtg.exception.CardNotFoundException;
 import com.mtg.model.Card;
-
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
+import com.mtg.model.Config;
+import com.mtg.model.ErrorMessage;
+import com.mtg.model.enumtype.ErrorCode;
 
 public class Crawler {
 	private WebClient client;
 	private HtmlPage home;
 	private HtmlTextInput query;
 	private DomElement submitButton;
+	private Config config;
 
 	private static class Helper {
 		private static final Crawler INSTANCE = new Crawler();
@@ -42,8 +47,18 @@ public class Crawler {
 	}
 
 	private Crawler() {
-		((Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.OFF);
+		// ((ch.qos.logback.classic.Logger)
+		// LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME))
+		// .setLevel(Level.OFF);
 
+		Logger.info("Fetching browser config...");
+		try {
+			this.config = buildConfig();
+		} catch (IOException e) {
+			Logger.trace(e, "Could not read config file.");
+			System.exit(500);
+		}
+		Logger.info("Initializing browser instance...");
 		client = new WebClient(BrowserVersion.CHROME);
 		client.setCssErrorHandler(new SilentCssErrorHandler());
 		client.getOptions().setHistorySizeLimit(1);
@@ -58,24 +73,41 @@ public class Crawler {
 		client.getOptions().setHistoryPageCacheLimit(1);
 
 		try {
-			home = client.getPage("https://www.ligamagic.com");
-		} catch (FailingHttpStatusCodeException | IOException e) {
-			e.printStackTrace();
-			System.out.println("Failed to fetch home page!");
+			Logger.info("Fetching Home Page...");
+			home = client.getPage(config.getBaseUrl());
+		} catch (Exception e) {
+			Logger.trace(e, "Failed to fetch Home Page.");
 			System.exit(404);
 		}
-		query = (HtmlTextInput) home.getElementById("query");
+
+		Logger.info("Home Page fetch OK. Fetching query field...");
+		query = (HtmlTextInput) home.getElementById(config.getQueryInput());
+
+		Logger.info("Query fetch OK. Fetching search button...");
 		submitButton = query.getNextElementSibling();
+
+		Logger.info("Search button OK.");
+		Logger.info("Browser initialization OK.");
+	}
+
+	private Config buildConfig() throws IOException {
+		Path path = Paths.get(StaticConfig.CONFIG_RESOURCE);
+		return JsonIterator.deserialize(Files.readAllBytes(path), Config.class);
+	}
+
+	public Config getConfig() {
+		return this.config;
 	}
 
 	public String findPrices(String cardName) {
 		try {
 			return JsonStream.serialize(find(cardName));
 		} catch (IOException | InterruptedException e) {
-			e.printStackTrace();
-			return "Error!";
+			Logger.trace(e);
+			return new ErrorMessage("Error when creating data.", ErrorCode.DATA_PARSE).toString();
 		} catch (CardNotFoundException e) {
-			return e.getMessage();
+			Logger.info(e.getMessage());
+			return new ErrorMessage(e.getMessage(), ErrorCode.CARD_NOT_FOUND).toString();
 		}
 	}
 
@@ -87,7 +119,7 @@ public class Crawler {
 		int tries = 10;
 		while (tries > 0 && table == null) {
 			tries--;
-			table = (HtmlTable) home.getElementById("cotacao-1");
+			table = (HtmlTable) home.getElementById(config.getBaseTable());
 			synchronized (home) {
 				home.wait(500);
 			}
