@@ -58,7 +58,7 @@ public class CrawlerDefault extends AbstractCrawler {
 
 	private Card find(String cardName) throws IOException, InterruptedException, URISyntaxException {
 		HtmlPage home = getBrowserInstance().getPage(config.getSearchUrl(cardName));
-		HtmlTable table = null;
+		HtmlTable table = (HtmlTable) home.getElementById(config.getBaseTable());
 		int tries = 4;
 		while (tries > 0 && table == null) {
 			tries--;
