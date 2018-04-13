@@ -2,70 +2,64 @@ package com.mtg.crawler.impl;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.pmw.tinylog.Logger;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
+import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.SilentCssErrorHandler;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlTable;
 import com.gargoylesoftware.htmlunit.html.HtmlTableHeaderCell;
 import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
-import com.jsoniter.output.JsonStream;
 import com.mtg.crawler.AbstractCrawler;
 import com.mtg.crawler.Crawler;
 import com.mtg.exception.CardNotFoundException;
 import com.mtg.model.Card;
-import com.mtg.model.ErrorMessage;
-import com.mtg.model.enumtype.ErrorCode;
 
-public class CrawlerDefault extends AbstractCrawler {
+public class CrawlerDefault extends AbstractCrawler<Object> {
 
 	private static class Helper {
-		private static final Crawler INSTANCE = new CrawlerDefault();
+		private static final Crawler<Object> INSTANCE = new CrawlerDefault();
 	}
 
-	public static Crawler getInstance() {
+	public static Crawler<Object> getInstance() {
 		return Helper.INSTANCE;
 	}
 
 	@Override
-	public String findPrices(String... cards) {
-		return JsonStream.serialize(find(cards));
+	public Stream<Object> find(String[] cards) {
+		return Arrays.asList(cards).parallelStream().map(this::find);
 	}
 
-	private List<Object> find(String[] cards) {
-		return Arrays.asList(cards).parallelStream().map(c -> {
-			try {
-				return find(c);
-			} catch (IOException | InterruptedException e) {
-				Logger.trace(e);
-				return new ErrorMessage("Error when creating data.", ErrorCode.DATA_PARSE);
-			} catch (CardNotFoundException e) {
-				Logger.info(e.getMessage());
-				return new ErrorMessage(e.getMessage(), ErrorCode.CARD_NOT_FOUND);
-			} catch (URISyntaxException e) {
-				Logger.trace(e);
-				return new ErrorMessage("Error when creating searching query.", ErrorCode.INVALID_URL);
-			}
-		}).collect(Collectors.toList());
-	}
-
-	private Card find(String cardName) throws IOException, InterruptedException, URISyntaxException {
-		HtmlPage home = getBrowserInstance().getPage(config.getSearchUrl(cardName));
+	private Card find(String cardName) {
+		HtmlPage home = null;
+		try {
+			home = getBrowserInstance().getPage(config.getSearchUrl(cardName));
+		} catch (FailingHttpStatusCodeException e) {
+			e.printStackTrace();
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
 		HtmlTable table = (HtmlTable) home.getElementById(config.getBaseTable());
 		int tries = 4;
 		while (tries > 0 && table == null) {
 			tries--;
 			table = (HtmlTable) home.getElementById(config.getBaseTable());
 			synchronized (home) {
-				home.wait(500);
+				// home.wait(500);
 			}
 		}
 
@@ -79,29 +73,24 @@ public class CrawlerDefault extends AbstractCrawler {
 						.collect(Collectors.toList()));
 	}
 
-	@Override
-	public String getStore(Object r) {
+	private String getStore(Object r) {
 		return ((HtmlTableRow) r).getCell(0).getFirstChild().getFirstChild().getAttributes().item(5).getNodeValue();
 	}
 
-	@Override
-	public boolean getFoil(Object r) {
+	private boolean getFoil(Object r) {
 		return ((HtmlTableRow) r).getCell(1).getLastChild().getLastChild().getLastChild() != null ? true : false;
 	}
 
-	@Override
-	public String getEdition(Object r) {
+	private String getEdition(Object r) {
 		return ((HtmlTableRow) r).getCell(1).getFirstChild().getLastChild().getTextContent().replace(" (Foil)", "");
 	}
 
-	@Override
-	public int getQty(Object r) {
-		Matcher m = getDigitOnly().matcher(((HtmlTableRow) r).getCell(3).getFirstChild().getTextContent());
+	private int getQty(Object r) {
+		Matcher m = Pattern.compile("\\d+").matcher(((HtmlTableRow) r).getCell(3).getFirstChild().getTextContent());
 		return Integer.parseInt(m.find() ? m.group() : "0");
 	}
 
-	@Override
-	public BigDecimal getPrice(Object r) {
+	private BigDecimal getPrice(Object r) {
 		String trim = ((HtmlTableRow) r).getCell(2).getFirstChild().getTextContent().trim().replace(".", "");
 		String price = trim.substring(trim.lastIndexOf('$') + 2, trim.length()).replace(",", ".");
 		return new BigDecimal(price);

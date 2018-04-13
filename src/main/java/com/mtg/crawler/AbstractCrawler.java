@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.regex.Pattern;
 
 import org.pmw.tinylog.Logger;
 
@@ -14,16 +13,14 @@ import com.mtg.config.StaticConfig;
 import com.mtg.model.Config;
 import com.mtg.model.Result;
 
-public abstract class AbstractCrawler implements Crawler {
+public abstract class AbstractCrawler<T> implements Crawler<T> {
 
 	protected Config config;
-	private Pattern digitOnly;
 
 	public AbstractCrawler() {
 		try {
 			Logger.info("Fetching crawler config...");
 			this.config = buildConfig();
-			this.digitOnly = Pattern.compile("\\d+");
 		} catch (IOException e) {
 			Logger.trace(e, "Could not read config file.");
 			System.exit(500);
@@ -37,10 +34,6 @@ public abstract class AbstractCrawler implements Crawler {
 
 	public final Config getConfig() {
 		return this.config;
-	}
-
-	public final Pattern getDigitOnly() {
-		return digitOnly;
 	}
 
 	protected Result addDetails(String store, String edition, boolean foil, BigDecimal price, Integer qty) {
