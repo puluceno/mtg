@@ -1,10 +1,13 @@
 package com.mtg.crawler.impl;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -18,6 +21,7 @@ import com.mtg.crawler.Crawler;
 import com.mtg.exception.CardNotFoundException;
 import com.mtg.model.Card;
 import com.mtg.model.ErrorMessage;
+import com.mtg.model.Result;
 import com.mtg.model.enumtype.ErrorCode;
 
 public class JsoupCrawler extends AbstractCrawler {
@@ -56,14 +60,6 @@ public class JsoupCrawler extends AbstractCrawler {
 	private Card find(String cardName) throws IOException, InterruptedException, URISyntaxException {
 		Document doc = Jsoup.connect(config.getSearchUrl(cardName)).get();
 		Element table = doc.getElementById(config.getBaseTable());
-		int tries = 4;
-		while (tries > 0 && table == null) {
-			tries--;
-			table = doc.getElementById(config.getBaseTable());
-			synchronized (table) {
-				table.wait(500);
-			}
-		}
 
 		if (table == null)
 			throw new CardNotFoundException(cardName.concat(" not found!"));
@@ -71,17 +67,38 @@ public class JsoupCrawler extends AbstractCrawler {
 		Logger.info("Found data for ".concat(cardName));
 		Node tbody = table.childNode(3);
 
-		tbody.childNodes().stream().filter(e -> e instanceof Element).forEach(e -> {
-			System.out.println(e);
-		});
+		Stream<Result> stream = tbody.childNodes().stream().filter(e -> e instanceof Element)
+				.map(e -> addDetails(getStore(e), getEdition(e), getFoil(e), getPrice(e), getQty(e)));
 
-		// table.getAllElements().stream().filter(r -> {
-		// return r.is("tr");
-		// }).map(r -> {
-		// System.out.println(r.select("td").get(0).text());
-		// return "";
-		// });
-		return null;
+		return new Card(cardName, stream.collect(Collectors.toList()));
+	}
+
+	@Override
+	public String getStore(Object e) {
+		return ((Node) e).childNode(1).childNode(0).childNode(0).attr("title");
+	}
+
+	@Override
+	public boolean getFoil(Object e) {
+		return ((Node) e).childNode(3).childNode(0).childNode(1).childNodes().size() > 1;
+	}
+
+	@Override
+	public String getEdition(Object e) {
+		return ((Node) e).childNode(3).childNode(0).childNode(1).childNode(0).toString().trim();
+	}
+
+	@Override
+	public int getQty(Object e) {
+		Matcher m = getDigitOnly().matcher(((Node) e).childNode(7).childNode(0).toString().trim());
+		return Integer.parseInt(m.find() ? m.group() : "0");
+	}
+
+	@Override
+	public BigDecimal getPrice(Object e) {
+		Node childNode = ((Node) e).childNode(5).childNode(0);
+		String sPrice = childNode.childNode(childNode.childNodeSize() - 1).toString().trim().replace(".", "");
+		return new BigDecimal(sPrice.substring(sPrice.lastIndexOf('$') + 2, sPrice.length()).replace(",", "."));
 	}
 
 }

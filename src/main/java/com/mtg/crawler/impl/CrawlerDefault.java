@@ -1,9 +1,11 @@
 package com.mtg.crawler.impl;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import org.pmw.tinylog.Logger;
@@ -14,6 +16,7 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlTable;
 import com.gargoylesoftware.htmlunit.html.HtmlTableHeaderCell;
+import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
 import com.jsoniter.output.JsonStream;
 import com.mtg.crawler.AbstractCrawler;
 import com.mtg.crawler.Crawler;
@@ -50,10 +53,8 @@ public class CrawlerDefault extends AbstractCrawler {
 			} catch (URISyntaxException e) {
 				Logger.trace(e);
 				return new ErrorMessage("Error when creating searching query.", ErrorCode.INVALID_URL);
-
 			}
 		}).collect(Collectors.toList());
-
 	}
 
 	private Card find(String cardName) throws IOException, InterruptedException, URISyntaxException {
@@ -73,9 +74,37 @@ public class CrawlerDefault extends AbstractCrawler {
 
 		Logger.info("Found data for ".concat(cardName));
 		return new Card(cardName,
-				table.getRows().parallelStream().filter(r -> !(r.getCell(0) instanceof HtmlTableHeaderCell))
+				table.getRows().stream().filter(r -> !(r.getCell(0) instanceof HtmlTableHeaderCell))
 						.map(r -> addDetails(getStore(r), getEdition(r), getFoil(r), getPrice(r), getQty(r)))
 						.collect(Collectors.toList()));
+	}
+
+	@Override
+	public String getStore(Object r) {
+		return ((HtmlTableRow) r).getCell(0).getFirstChild().getFirstChild().getAttributes().item(5).getNodeValue();
+	}
+
+	@Override
+	public boolean getFoil(Object r) {
+		return ((HtmlTableRow) r).getCell(1).getLastChild().getLastChild().getLastChild() != null ? true : false;
+	}
+
+	@Override
+	public String getEdition(Object r) {
+		return ((HtmlTableRow) r).getCell(1).getFirstChild().getLastChild().getTextContent().replace(" (Foil)", "");
+	}
+
+	@Override
+	public int getQty(Object r) {
+		Matcher m = getDigitOnly().matcher(((HtmlTableRow) r).getCell(3).getFirstChild().getTextContent());
+		return Integer.parseInt(m.find() ? m.group() : "0");
+	}
+
+	@Override
+	public BigDecimal getPrice(Object r) {
+		String trim = ((HtmlTableRow) r).getCell(2).getFirstChild().getTextContent().trim().replace(".", "");
+		String price = trim.substring(trim.lastIndexOf('$') + 2, trim.length()).replace(",", ".");
+		return new BigDecimal(price);
 	}
 
 	private WebClient getBrowserInstance() {

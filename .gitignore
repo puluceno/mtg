@@ -5,4 +5,5 @@
 /hs_err_pid10792.log
 /*.log
 *.log
-
+*.settings/
+.settings/*

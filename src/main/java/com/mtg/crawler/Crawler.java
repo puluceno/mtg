@@ -1,7 +1,20 @@
 package com.mtg.crawler;
 
-public interface Crawler {
+import java.math.BigDecimal;
+import java.util.stream.Stream;
 
-	public String findPrices(String... cards);
+public interface Crawler<T> {
+
+	public Stream<T> findPrices(String... cards);
+
+	public String getStore(Object r);
+
+	public boolean getFoil(Object r);
+
+	public String getEdition(Object r);
+
+	public int getQty(Object r);
+
+	public BigDecimal getPrice(Object r);
 
 }

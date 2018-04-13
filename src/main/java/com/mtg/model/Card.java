@@ -1,14 +1,13 @@
 package com.mtg.model;
 
 import java.util.List;
-import java.util.Map;
 
 public class Card {
 
 	private final String name;
-	private List<Map<String, Object>> result;
+	private List<Result> result;
 
-	public Card(String name, List<Map<String, Object>> result) {
+	public Card(String name, List<Result> result) {
 		this.name = name;
 		this.result = result;
 	}
@@ -17,7 +16,7 @@ public class Card {
 		return this.name;
 	}
 
-	public List<Map<String, Object>> getResult() {
+	public List<Result> getResult() {
 		return this.result;
 	}
 
