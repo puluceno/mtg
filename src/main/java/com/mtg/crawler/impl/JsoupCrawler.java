@@ -2,7 +2,6 @@ package com.mtg.crawler.impl;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Arrays;
 import java.util.stream.Stream;
 
 import org.jsoup.Jsoup;
@@ -26,11 +25,11 @@ public class JsoupCrawler extends AbstractCrawler<Node> {
 	}
 
 	@Override
-	public Stream<Node> find(String[] cards) {
-		return Arrays.asList(cards).parallelStream().map(this::find);
+	public Stream<Node> find(String card) {
+		return Stream.of(card).map(this::parse);
 	}
 
-	private Node find(String cardName) {
+	private Node parse(String cardName) {
 		Document doc = null;
 		try {
 			doc = Jsoup.connect(config.getSearchUrl(cardName)).get();

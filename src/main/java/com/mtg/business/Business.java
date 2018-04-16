@@ -1,10 +1,13 @@
 package com.mtg.business;
 
 import java.math.BigDecimal;
+import java.util.stream.Stream;
 
 import org.jsoup.nodes.Node;
 
-public interface Business {
+public interface Business<T> {
+
+	public Stream<T> buildStream(String card);
 
 	public String findPrices(String[] cards);
 

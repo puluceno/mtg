@@ -4,6 +4,6 @@ import java.util.stream.Stream;
 
 public interface Crawler<T> {
 
-	public Stream<T> find(String[] cards);
+	public Stream<T> find(String card);
 
 }
