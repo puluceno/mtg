@@ -6,9 +6,12 @@ import java.util.stream.Stream;
 
 import org.jsoup.nodes.Node;
 
+import com.jsoniter.spi.JsoniterSpi;
 import com.mtg.crawler.Crawler;
 import com.mtg.crawler.impl.JsoupCrawler;
 import com.mtg.model.Result;
+import com.mtg.model.Search;
+import com.mtg.model.SearchDefault;
 
 public abstract class AbstractBusiness<T> implements Business<Result> {
 
@@ -17,6 +20,7 @@ public abstract class AbstractBusiness<T> implements Business<Result> {
 
 	public AbstractBusiness() {
 		this.digitOnly = Pattern.compile("\\d+");
+		JsoniterSpi.registerTypeImplementation(Search.class, SearchDefault.class);
 	}
 
 	public final Pattern getDigitOnly() {

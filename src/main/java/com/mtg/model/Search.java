@@ -9,4 +9,7 @@ public interface Search {
 	public int getQty();
 
 	public int getLimit();
+
+	@Override
+	public String toString();
 }
