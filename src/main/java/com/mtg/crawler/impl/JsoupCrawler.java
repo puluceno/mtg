@@ -7,7 +7,6 @@ import java.util.stream.Stream;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.pmw.tinylog.Logger;
 
@@ -39,7 +38,7 @@ public class JsoupCrawler extends AbstractCrawler<Node> {
 		} catch (URISyntaxException e) {
 			Logger.error(e, "Invalid URL built for card: ".concat(card));
 		}
-		Element table = doc.getElementById(config.getBaseTable());
+		var table = doc.getElementById(config.getBaseTable());
 
 		if (table == null)
 			throw new CardNotFoundException(card.concat(" not found!"));

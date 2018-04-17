@@ -14,7 +14,7 @@ public class CardController {
 
 	private Business<Result> businessController = FilterBusiness.getInstance();
 
-	@PostMapping(value = "/cards", produces = "application/json")
+	@PostMapping(value = "/cards", produces = "application/json", consumes = "application/json")
 	public String getCardPrices(@RequestBody String[] cards) {
 		Logger.info("Requested data for " + cards.length + " cards.");
 		return businessController.findPrices(cards);
