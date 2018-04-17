@@ -7,7 +7,7 @@ import org.jsoup.nodes.Node;
 
 public interface Business<T> {
 
-	public Stream<T> buildStream(String card);
+	public Stream<T> buildStream(String card, Class<?> cls);
 
 	public String findPrices(String[] cards);
 

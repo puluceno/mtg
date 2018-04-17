@@ -2,6 +2,7 @@ package com.mtg.crawler.impl;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.stream.Stream;
 
 import org.jsoup.Jsoup;
@@ -26,25 +27,25 @@ public class JsoupCrawler extends AbstractCrawler<Node> {
 
 	@Override
 	public Stream<Node> find(String card) {
-		return Stream.of(card).map(this::parse);
+		return parse(card).stream();
 	}
 
-	private Node parse(String cardName) {
+	private List<Node> parse(String card) {
 		Document doc = null;
 		try {
-			doc = Jsoup.connect(config.getSearchUrl(cardName)).get();
+			doc = Jsoup.connect(config.getSearchUrl(card)).get();
 		} catch (IOException e) {
 			Logger.error(e, "Could not perform HTTP request");
 		} catch (URISyntaxException e) {
-			Logger.error(e, "Invalid URL built for card: ".concat(cardName));
+			Logger.error(e, "Invalid URL built for card: ".concat(card));
 		}
 		Element table = doc.getElementById(config.getBaseTable());
 
 		if (table == null)
-			throw new CardNotFoundException(cardName.concat(" not found!"));
+			throw new CardNotFoundException(card.concat(" not found!"));
 
-		Logger.info("Found data for ".concat(cardName));
-		return table.childNode(3);
+		Logger.info("Found data for ".concat(card));
+		return table.childNode(3).childNodes();
 	}
 
 }

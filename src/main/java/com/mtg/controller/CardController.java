@@ -7,12 +7,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mtg.business.Business;
 import com.mtg.business.impl.FilterBusiness;
-import com.mtg.model.Card;
+import com.mtg.model.Result;
 
 @RestController
 public class CardController {
 
-	private Business<Card> businessController = FilterBusiness.getInstance();
+	private Business<Result> businessController = FilterBusiness.getInstance();
 
 	@PostMapping(value = "/cards", produces = "application/json")
 	public String getCardPrices(@RequestBody String[] cards) {
