@@ -2,12 +2,13 @@ package com.mtg.crawler.impl;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.stream.Stream;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
+import org.jsoup.select.Elements;
 import org.pmw.tinylog.Logger;
 
 import com.mtg.crawler.AbstractCrawler;
@@ -25,11 +26,11 @@ public class JsoupCrawler extends AbstractCrawler<Node> {
 	}
 
 	@Override
-	public Stream<Node> find(String card) {
+	public Stream<Element> find(String card) {
 		return parse(card).stream();
 	}
 
-	private List<Node> parse(String card) {
+	private Elements parse(String card) {
 		Document doc = null;
 		try {
 			doc = Jsoup.connect(config.getSearchUrl(card)).get();
@@ -38,13 +39,13 @@ public class JsoupCrawler extends AbstractCrawler<Node> {
 		} catch (URISyntaxException e) {
 			Logger.error(e, "Invalid URL built for card: ".concat(card));
 		}
-		var table = doc.getElementById(config.getBaseTable());
+		Elements rows = doc.getElementsByAttributeValue("mp", "2");
 
-		if (table == null)
+		if (rows == null)
 			throw new CardNotFoundException(card.concat(" not found!"));
 
 		Logger.info("Found data for ".concat(card));
-		return table.childNode(3).childNodes();
+		return rows;
 	}
 
 }

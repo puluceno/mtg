@@ -3,7 +3,6 @@ package com.mtg.business.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.jsoup.nodes.Element;
 import org.pmw.tinylog.Logger;
 
 import com.jsoniter.JsonIterator;
@@ -34,11 +33,14 @@ public class FilterBusiness<T> extends AbstractBusiness<Card> {
 	}
 
 	private List<Object> find(String cards) {
-		List<Search> search = JsonIterator.deserialize(cards, new TypeLiteral<List<Search>>() {
+		var search = JsonIterator.deserialize(cards, new TypeLiteral<List<Search>>() {
 		});
+
+		Logger.info("Requested data for " + search.size() + " cards.");
+
 		return search.parallelStream().map(c -> {
 			try {
-				return new Card(c.getName(), buildStream(c.getName(), Element.class).collect(Collectors.toList()));
+				return new Card(c.getName(), buildStream(c.getName()).collect(Collectors.toList()));
 			} catch (CardNotFoundException e) {
 				Logger.info(e.getMessage());
 				return new ErrorMessage(e.getMessage(), ErrorCode.CARD_NOT_FOUND);

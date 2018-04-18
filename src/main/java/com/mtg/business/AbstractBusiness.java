@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 
 import com.jsoniter.spi.JsoniterSpi;
@@ -27,9 +28,8 @@ public abstract class AbstractBusiness<T> implements Business<Result> {
 		return digitOnly;
 	}
 
-	protected Stream<Result> buildStream(String card, Class<?> cls) {
-		return crawler.find(card).filter(cls::isInstance)
-				.map(e -> addDetails(getStore(e), getEdition(e), getFoil(e), getPrice(e), getQty(e)));
+	protected Stream<Result> buildStream(String card) {
+		return crawler.find(card).map(e -> addDetails(getStore(e), getEdition(e), getFoil(e), getPrice(e), getQty(e)));
 	}
 
 	private Result addDetails(String store, String edition, boolean foil, BigDecimal price, Integer qty) {
@@ -37,30 +37,29 @@ public abstract class AbstractBusiness<T> implements Business<Result> {
 	}
 
 	@Override
-	public String getStore(Node n) {
-		return n.childNode(1).childNode(0).childNode(0).attr("title");
+	public String getStore(Element n) {
+		return n.selectFirst("[title]").attr("title");
 	}
 
 	@Override
-	public boolean getFoil(Node n) {
-		return n.childNode(3).childNode(0).childNode(1).childNodes().size() > 1;
+	public String getEdition(Element n) {
+		return n.getElementsByAttributeValue("class", "nomeedicao").text();
 	}
 
 	@Override
-	public String getEdition(Node n) {
-		return n.childNode(3).childNode(0).childNode(1).childNode(0).toString().trim();
+	public boolean getFoil(Element n) {
+		return n.getElementsByAttributeValue("class", "extras").hasText();
 	}
 
 	@Override
-	public int getQty(Node n) {
-		var m = getDigitOnly().matcher(n.childNode(7).childNode(0).toString().trim());
-		return Integer.parseInt(m.find() ? m.group() : "0");
-	}
-
-	@Override
-	public BigDecimal getPrice(Node n) {
-		var childNode = n.childNode(5).childNode(0);
-		var price = childNode.childNode(childNode.childNodeSize() - 1).toString().trim().replace(".", "");
+	public BigDecimal getPrice(Element n) {
+		var price = n.getElementsByAttributeValue("class", "e-col3").text();
 		return new BigDecimal(price.substring(price.lastIndexOf('$') + 2, price.length()).replace(",", "."));
+	}
+
+	@Override
+	public int getQty(Element n) {
+		var m = getDigitOnly().matcher(n.getElementsByAttributeValue("class", "e-col5 e-col5-offmktplace").text());
+		return Integer.parseInt(m.find() ? m.group() : "0");
 	}
 }

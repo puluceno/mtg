@@ -15,7 +15,6 @@ public class CardController {
 
 	@PostMapping(value = "/cards", produces = "application/json")
 	public String getCardPrices(@RequestBody String cards) {
-		// Logger.info("Requested data for " + cards.length + " cards.");
 		return businessController.findPrices(cards);
 	}
 }
