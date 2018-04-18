@@ -12,10 +12,8 @@ import com.mtg.business.AbstractBusiness;
 import com.mtg.business.Business;
 import com.mtg.exception.CardNotFoundException;
 import com.mtg.model.Card;
-import com.mtg.model.ErrorMessage;
 import com.mtg.model.Result;
 import com.mtg.model.Search;
-import com.mtg.model.enumtype.ErrorCode;
 
 public class FilterBusiness<T> extends AbstractBusiness<Card> {
 
@@ -32,18 +30,20 @@ public class FilterBusiness<T> extends AbstractBusiness<Card> {
 		return JsonStream.serialize(find(cards));
 	}
 
-	private List<Object> find(String cards) {
+	private List<Card> find(String cards) {
 		var search = JsonIterator.deserialize(cards, new TypeLiteral<List<Search>>() {
 		});
 
 		Logger.info("Requested data for " + search.size() + " cards.");
 
-		return search.parallelStream().map(c -> {
+		return search.parallelStream().map(s -> {
 			try {
-				return new Card(c.getName(), buildStream(c.getName()).collect(Collectors.toList()));
+				return new Card(s.getName(), buildStream(s.getName()).filter(r -> r.getQty() >= s.getQty())
+						.filter(r -> s.isFoil() ? r.isFoil() == s.isFoil() : true)
+						.limit(s.getLimit() > 0 ? s.getLimit() : Integer.MAX_VALUE).collect(Collectors.toList()));
 			} catch (CardNotFoundException e) {
 				Logger.info(e.getMessage());
-				return new ErrorMessage(e.getMessage(), ErrorCode.CARD_NOT_FOUND);
+				return new Card(e.getMessage(), null);
 			}
 		}).collect(Collectors.toList());
 	}

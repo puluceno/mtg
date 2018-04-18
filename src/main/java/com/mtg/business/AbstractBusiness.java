@@ -43,7 +43,8 @@ public abstract class AbstractBusiness<T> implements Business<Result> {
 
 	@Override
 	public String getEdition(Element n) {
-		return n.getElementsByAttributeValue("class", "nomeedicao").text();
+		String edition = n.getElementsByAttributeValue("class", "nomeedicao").text();
+		return edition.isEmpty() ? n.getElementsByAttributeValue("class", "edicaoextras").text() : edition;
 	}
 
 	@Override
