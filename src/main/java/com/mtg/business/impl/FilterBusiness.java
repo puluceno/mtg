@@ -30,7 +30,7 @@ public class FilterBusiness<T> extends AbstractBusiness<Card> {
 		return JsonStream.serialize(find(cards));
 	}
 
-	private List<Card> find(String cards) {
+	private Object find(String cards) {
 		var search = JsonIterator.deserialize(cards, new TypeLiteral<List<Search>>() {
 		});
 
@@ -45,7 +45,7 @@ public class FilterBusiness<T> extends AbstractBusiness<Card> {
 				Logger.info(e.getMessage());
 				return new Card(e.getMessage(), null);
 			}
-		}).collect(Collectors.toList());
+		}).flatMap(c -> c.getResult().stream()).collect(Collectors.groupingBy(Result::getStore));
 	}
 
 }
