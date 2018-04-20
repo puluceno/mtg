@@ -17,15 +17,15 @@ ext {
 	}
 }
 
-
-//sourceCompatibility = 1.10
-
 eclipse {
     classpath {
         downloadJavadoc = true
         downloadSources = true
     }
 }
+
+sourceCompatibility = 1.10
+targetCompatibility = 1.10
 
 
 jar {

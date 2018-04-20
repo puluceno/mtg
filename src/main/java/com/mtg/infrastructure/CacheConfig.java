@@ -3,9 +3,9 @@ package com.mtg.infrastructure;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
+import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericToStringSerializer;
@@ -18,9 +18,6 @@ public class CacheConfig extends CachingConfigurerSupport {
 
 	@Value("${redis.port}")
 	private int redisPort;
-
-	@Value("#{${redis.ttl}}")
-	private int DEFAULT_TTL;
 
 	@Bean
 	public JedisConnectionFactory jedisConnectionFactory() {
@@ -37,8 +34,7 @@ public class CacheConfig extends CachingConfigurerSupport {
 
 	@Bean
 	public CacheManager cacheManager(RedisTemplate<String, Object> redisTemplate) {
-		RedisCacheManager cacheManager = new RedisCacheManager(null, null);
-		cacheManager.setDefaultExpiration(DEFAULT_TTL);
-		return cacheManager;
+
+		return new SimpleCacheManager();
 	}
 }

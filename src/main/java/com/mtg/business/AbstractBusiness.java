@@ -15,8 +15,9 @@ import com.mtg.model.Search;
 import com.mtg.model.SearchDefault;
 import com.mtg.model.enumtype.State;
 
-public abstract class AbstractBusiness<T> implements Business<Result> {
+public abstract class AbstractBusiness implements Business<Result> {
 
+	private static final String CLASS = "class";
 	private Crawler<Node> crawler = JsoupCrawler.getInstance();
 	private Pattern digitOnly;
 
@@ -46,13 +47,13 @@ public abstract class AbstractBusiness<T> implements Business<Result> {
 
 	@Override
 	public String getEdition(Element e) {
-		String edition = e.getElementsByAttributeValue("class", "nomeedicao").text();
-		return edition.isEmpty() ? e.getElementsByAttributeValue("class", "edicaoextras").text() : edition;
+		String edition = e.getElementsByAttributeValue(CLASS, "nomeedicao").text();
+		return edition.isEmpty() ? e.getElementsByAttributeValue(CLASS, "edicaoextras").text() : edition;
 	}
 
 	@Override
 	public boolean getFoil(Element e) {
-		return e.getElementsByAttributeValue("class", "extras").hasText();
+		return e.getElementsByAttributeValue(CLASS, "extras").hasText();
 	}
 
 	@Override
@@ -62,19 +63,20 @@ public abstract class AbstractBusiness<T> implements Business<Result> {
 
 	@Override
 	public String getState(Element e) {
-		return State.valueOf(e.selectFirst("[onclick]").text()).getState();
+		return State.valueOf(e.selectFirst("[onclick]").text()).getDescription();
 	}
 
 	@Override
 	public int getQty(Element e) {
-		var m = getDigitOnly().matcher(e.getElementsByAttributeValue("class", "e-col5 e-col5-offmktplace").text());
+		var m = getDigitOnly().matcher(e.getElementsByAttributeValue(CLASS, "e-col5 e-col5-offmktplace").text());
 		return Integer.parseInt(m.find() ? m.group() : "0");
 	}
 
 	@Override
 	public BigDecimal getPrice(Element e) {
-		var price = e.getElementsByAttributeValue("class", "e-col3").text();
-		return new BigDecimal(price.substring(price.lastIndexOf('$') + 2, price.length()).replace(",", "."));
+		var price = e.getElementsByAttributeValue(CLASS, "e-col3").text();
+		return new BigDecimal(
+				price.substring(price.lastIndexOf('$') + 2, price.length()).replace(".", "").replace(",", "."));
 	}
 
 }

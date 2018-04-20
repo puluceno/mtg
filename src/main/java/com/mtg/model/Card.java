@@ -1,8 +1,14 @@
 package com.mtg.model;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Card {
+import org.springframework.data.redis.core.RedisHash;
+
+@RedisHash("Card")
+public class Card implements Serializable {
+
+	private static final long serialVersionUID = -7061010916736640896L;
 
 	private final String name;
 	private List<Result> result;

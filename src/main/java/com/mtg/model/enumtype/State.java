@@ -5,14 +5,14 @@ public enum State {
 	M("Mint"), NM("Near Mint"), SP("Slightly Played"), MP("Moderately Played"), HP("Heavily Played"), DM("Damaged"), NA(
 			"Not Available");
 
-	private final String state;
+	private final String description;
 
-	State(String state) {
-		this.state = state;
+	State(String description) {
+		this.description = description;
 	}
 
-	public String getState() {
-		return state;
+	public String getDescription() {
+		return description;
 	}
 
 }

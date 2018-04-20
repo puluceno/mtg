@@ -15,7 +15,7 @@ import com.mtg.model.Card;
 import com.mtg.model.Result;
 import com.mtg.model.Search;
 
-public class FilterBusiness<T> extends AbstractBusiness<Card> {
+public class FilterBusiness<T> extends AbstractBusiness {
 
 	private static class Helper {
 		private static final Business<Result> INSTANCE = new FilterBusiness<Card>();
