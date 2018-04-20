@@ -45,7 +45,9 @@ public class FilterBusiness<T> extends AbstractBusiness<Card> {
 				Logger.info(e.getMessage());
 				return new Card(e.getMessage(), null);
 			}
-		}).flatMap(c -> c.getResult().stream()).collect(Collectors.groupingBy(Result::getStore));
+		}).collect(Collectors.toList());
+		// .flatMap(c ->
+		// c.getResult().stream()).collect(Collectors.groupingBy(Result::getStore));
 	}
 
 }

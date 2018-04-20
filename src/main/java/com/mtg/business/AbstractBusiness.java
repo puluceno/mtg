@@ -13,6 +13,7 @@ import com.mtg.crawler.impl.JsoupCrawler;
 import com.mtg.model.Result;
 import com.mtg.model.Search;
 import com.mtg.model.SearchDefault;
+import com.mtg.model.enumtype.State;
 
 public abstract class AbstractBusiness<T> implements Business<Result> {
 
@@ -29,38 +30,51 @@ public abstract class AbstractBusiness<T> implements Business<Result> {
 	}
 
 	protected Stream<Result> buildStream(String card) {
-		return crawler.find(card).map(e -> addDetails(getStore(e), getEdition(e), getFoil(e), getPrice(e), getQty(e)));
+		return crawler.find(card).map(e -> addDetails(getStore(e), getEdition(e), getFoil(e), getLanguage(e),
+				getState(e), getQty(e), getPrice(e)));
 	}
 
-	private Result addDetails(String store, String edition, boolean foil, BigDecimal price, Integer qty) {
-		return new Result(store, edition, foil, qty, price);
-	}
-
-	@Override
-	public String getStore(Element n) {
-		return n.selectFirst("[title]").attr("title");
+	private Result addDetails(String store, String edition, boolean foil, String language, String state, Integer qty,
+			BigDecimal price) {
+		return new Result(store, edition, foil, language, state, qty, price);
 	}
 
 	@Override
-	public String getEdition(Element n) {
-		String edition = n.getElementsByAttributeValue("class", "nomeedicao").text();
-		return edition.isEmpty() ? n.getElementsByAttributeValue("class", "edicaoextras").text() : edition;
+	public String getStore(Element e) {
+		return e.selectFirst("[src]").attr("src").substring(2);
 	}
 
 	@Override
-	public boolean getFoil(Element n) {
-		return n.getElementsByAttributeValue("class", "extras").hasText();
+	public String getEdition(Element e) {
+		String edition = e.getElementsByAttributeValue("class", "nomeedicao").text();
+		return edition.isEmpty() ? e.getElementsByAttributeValue("class", "edicaoextras").text() : edition;
 	}
 
 	@Override
-	public BigDecimal getPrice(Element n) {
-		var price = n.getElementsByAttributeValue("class", "e-col3").text();
+	public boolean getFoil(Element e) {
+		return e.getElementsByAttributeValue("class", "extras").hasText();
+	}
+
+	@Override
+	public String getLanguage(Element e) {
+		return e.selectFirst("[title]").attr("title");
+	}
+
+	@Override
+	public String getState(Element e) {
+		return State.valueOf(e.selectFirst("[onclick]").text()).getState();
+	}
+
+	@Override
+	public int getQty(Element e) {
+		var m = getDigitOnly().matcher(e.getElementsByAttributeValue("class", "e-col5 e-col5-offmktplace").text());
+		return Integer.parseInt(m.find() ? m.group() : "0");
+	}
+
+	@Override
+	public BigDecimal getPrice(Element e) {
+		var price = e.getElementsByAttributeValue("class", "e-col3").text();
 		return new BigDecimal(price.substring(price.lastIndexOf('$') + 2, price.length()).replace(",", "."));
 	}
 
-	@Override
-	public int getQty(Element n) {
-		var m = getDigitOnly().matcher(n.getElementsByAttributeValue("class", "e-col5 e-col5-offmktplace").text());
-		return Integer.parseInt(m.find() ? m.group() : "0");
-	}
 }

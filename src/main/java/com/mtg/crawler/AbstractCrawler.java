@@ -1,7 +1,6 @@
 package com.mtg.crawler;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -10,7 +9,6 @@ import org.pmw.tinylog.Logger;
 import com.jsoniter.JsonIterator;
 import com.mtg.config.StaticConfig;
 import com.mtg.model.Config;
-import com.mtg.model.Result;
 
 public abstract class AbstractCrawler<T> implements Crawler<T> {
 
@@ -33,10 +31,6 @@ public abstract class AbstractCrawler<T> implements Crawler<T> {
 
 	public final Config getConfig() {
 		return this.config;
-	}
-
-	protected Result addDetails(String store, String edition, boolean foil, BigDecimal price, Integer qty) {
-		return new Result(store, edition, foil, qty, price);
 	}
 
 }

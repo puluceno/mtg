@@ -8,13 +8,18 @@ public interface Business<T> {
 
 	public String findPrices(String cards);
 
-	public String getStore(Element n);
+	public String getStore(Element e);
 
-	public boolean getFoil(Element n);
+	public boolean getFoil(Element e);
 
-	public String getEdition(Element n);
+	public String getEdition(Element e);
 
-	public int getQty(Element n);
+	public String getLanguage(Element e);
 
-	public BigDecimal getPrice(Element n);
+	public String getState(Element e);
+
+	public int getQty(Element e);
+
+	public BigDecimal getPrice(Element e);
+
 }
