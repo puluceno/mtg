@@ -10,9 +10,10 @@ public class Result {
 	private final int qty;
 	private final String state;
 	private final BigDecimal price;
+	private final BigDecimal totalPrice;
 
 	public Result(final String store, final String edition, final boolean foil, final String language,
-			final String state, final int qty, final BigDecimal price) {
+			final String state, final int qty, final BigDecimal price, final BigDecimal totalPrice) {
 		this.store = store;
 		this.edition = edition;
 		this.foil = foil;
@@ -20,6 +21,7 @@ public class Result {
 		this.state = state;
 		this.qty = qty;
 		this.price = price;
+		this.totalPrice = totalPrice;
 	}
 
 	public String getStore() {
@@ -50,10 +52,13 @@ public class Result {
 		return price;
 	}
 
+	public BigDecimal getTotalPrice() {
+		return totalPrice;
+	}
+
 	@Override
 	public String toString() {
 		return "Result [store=" + store + ", edition=" + edition + ", foil=" + foil + ", language=" + language
 				+ ", qty=" + qty + ", state=" + state + ", price=" + price + "]";
 	}
-
 }

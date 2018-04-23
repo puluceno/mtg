@@ -22,4 +22,6 @@ public interface Business<T> {
 
 	public BigDecimal getPrice(Element e);
 
+	public BigDecimal getTotalPrice(BigDecimal price, int qty);
+
 }

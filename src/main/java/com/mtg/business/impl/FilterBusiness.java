@@ -38,7 +38,7 @@ public class FilterBusiness<T> extends AbstractBusiness {
 
 		return search.parallelStream().map(s -> {
 			try {
-				return new Card(s.getName(), buildStream(s.getName()).filter(r -> r.getQty() >= s.getQty())
+				return new Card(s.getName(), buildStream(s).filter(r -> r.getQty() >= s.getQty())
 						.filter(r -> s.isFoil() ? r.isFoil() == s.isFoil() : true)
 						.limit(s.getLimit() > 0 ? s.getLimit() : Integer.MAX_VALUE).collect(Collectors.toList()));
 			} catch (CardNotFoundException e) {
@@ -46,8 +46,9 @@ public class FilterBusiness<T> extends AbstractBusiness {
 				return new Card(e.getMessage(), null);
 			}
 		}).collect(Collectors.toList());
-		// .flatMap(c ->
-		// c.getResult().stream()).collect(Collectors.groupingBy(Result::getStore));
+		// .flatMap(c -> c.getResult().stream())
+		// .collect(Collectors.summingDouble(r -> r.getPrice().doubleValue() *
+		// r.getQty()));
 	}
 
 }

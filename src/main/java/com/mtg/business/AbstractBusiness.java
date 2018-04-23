@@ -30,14 +30,17 @@ public abstract class AbstractBusiness implements Business<Result> {
 		return digitOnly;
 	}
 
-	protected Stream<Result> buildStream(String card) {
-		return crawler.find(card).map(e -> addDetails(getStore(e), getEdition(e), getFoil(e), getLanguage(e),
-				getState(e), getQty(e), getPrice(e)));
+	protected Stream<Result> buildStream(Search card) {
+		return crawler.find(card.getName()).map(e -> {
+			BigDecimal price = getPrice(e);
+			return addDetails(getStore(e), getEdition(e), getFoil(e), getLanguage(e), getState(e), getQty(e), price,
+					getTotalPrice(price, card.getQty()));
+		});
 	}
 
 	private Result addDetails(String store, String edition, boolean foil, String language, String state, Integer qty,
-			BigDecimal price) {
-		return new Result(store, edition, foil, language, state, qty, price);
+			BigDecimal price, BigDecimal totalPrice) {
+		return new Result(store, edition, foil, language, state, qty, price, totalPrice);
 	}
 
 	@Override
@@ -63,7 +66,7 @@ public abstract class AbstractBusiness implements Business<Result> {
 
 	@Override
 	public String getState(Element e) {
-		return State.valueOf(e.selectFirst("[onclick]").text()).getDescription();
+		return State.valueOf(e.selectFirst("[onclick]").text().replace("/", "")).getDescription();
 	}
 
 	@Override
@@ -79,4 +82,8 @@ public abstract class AbstractBusiness implements Business<Result> {
 				price.substring(price.lastIndexOf('$') + 2, price.length()).replace(".", "").replace(",", "."));
 	}
 
+	@Override
+	public BigDecimal getTotalPrice(BigDecimal price, int qty) {
+		return price.multiply(new BigDecimal(qty == 0 ? 1 : qty));
+	}
 }
