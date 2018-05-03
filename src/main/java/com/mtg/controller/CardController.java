@@ -14,7 +14,7 @@ public class CardController {
 
 	private Business<Result> businessController = FilterBusiness.getInstance();
 
-	@Cacheable("cards")
+	@Cacheable(value = "cards", cacheManager = "cacheManager")
 	@PostMapping(value = "/cards", produces = "application/json")
 	public String getCardPrices(@RequestBody String search) {
 		return businessController.findPrices(search);

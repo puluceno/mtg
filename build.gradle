@@ -48,6 +48,12 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-jetty")
     //compile("org.springframework.boot:spring-boot-starter-cache")    
     compile('org.springframework.boot:spring-boot-starter-data-redis')
+    compile('org.springframework.boot:spring-boot-devtools')
+    
+    compile group: 'org.apache.commons', name: 'commons-pool2', version: '2.5.0'
+    compile group: 'redis.clients', name: 'jedis', version: '2.9.0'
+    
+    
     
 	compile group: 'org.jsoup', name: 'jsoup', version: '1.+'
 	

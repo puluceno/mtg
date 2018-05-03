@@ -33,7 +33,7 @@ public class JsoupCrawler extends AbstractCrawler<Node> {
 	private Elements parse(String card) {
 		Document doc = null;
 		try {
-			doc = Jsoup.connect(config.getSearchUrl(card)).proxy("proxy.panamericano.com.br", 8080).get();
+			doc = Jsoup.connect(config.getSearchUrl(card)).get();// .proxy("proxy.panamericano.com.br", 8080).get();
 		} catch (IOException e) {
 			Logger.error(e, "Could not perform HTTP request");
 		} catch (URISyntaxException e) {
@@ -41,9 +41,8 @@ public class JsoupCrawler extends AbstractCrawler<Node> {
 		}
 		Elements rows = doc.getElementsByAttributeValue("mp", "2");
 
-		if (rows == null) {
+		if (rows == null)
 			throw new CardNotFoundException(card.concat(" not found!"));
-		}
 
 		Logger.info("Found data for ".concat(card));
 		return rows;

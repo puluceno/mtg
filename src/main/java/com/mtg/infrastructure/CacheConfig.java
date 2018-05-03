@@ -1,40 +1,47 @@
 package com.mtg.infrastructure;
 
-import org.springframework.beans.factory.annotation.Value;
+import java.time.Duration;
+
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
-import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.GenericToStringSerializer;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
 
 @Configuration
 public class CacheConfig extends CachingConfigurerSupport {
 
-	@Value("${redis.hostname}")
-	private String redisHostName;
-
-	@Value("${redis.port}")
-	private int redisPort;
+	// @Value("${redis.hostname}")
+	// private String redisHostName;
+	//
+	// @Value("${redis.port}")
+	// private int redisPort;
 
 	@Bean
-	public JedisConnectionFactory jedisConnectionFactory() {
+	public JedisConnectionFactory redisConnectionFactory() {
 		return new JedisConnectionFactory();
 	}
+	//
+	// @Bean
+	// public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory cf)
+	// {
+	// RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
+	// redisTemplate.setConnectionFactory(cf);
+	// return redisTemplate;
+	// }
 
-	@Bean
-	public RedisTemplate<String, Object> redisTemplate() {
-		final RedisTemplate<String, Object> template = new RedisTemplate<>();
-		template.setConnectionFactory(jedisConnectionFactory());
-		template.setValueSerializer(new GenericToStringSerializer<>(Object.class));
-		return template;
+	@Override
+	@Bean(name = "cacheManager")
+	public CacheManager cacheManager() {
+		RedisCacheConfiguration cacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
+				.entryTtl(Duration.ofSeconds(1)).disableCachingNullValues()
+				.serializeValuesWith(RedisSerializationContext.SerializationPair
+						.fromSerializer(new GenericJackson2JsonRedisSerializer()));
+		return RedisCacheManager.builder(redisConnectionFactory()).cacheDefaults(cacheConfiguration).build();
 	}
 
-	@Bean
-	public CacheManager cacheManager(RedisTemplate<String, Object> redisTemplate) {
-		SimpleCacheManager c = new SimpleCacheManager();
-		return c;
-	}
 }
