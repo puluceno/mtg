@@ -18,6 +18,7 @@ import com.mtg.exception.CardNotFoundException;
 public class JsoupCrawler extends AbstractCrawler<Node> {
 
 	private static class Helper {
+
 		private static final Crawler<Node> INSTANCE = new JsoupCrawler();
 	}
 
@@ -27,25 +28,28 @@ public class JsoupCrawler extends AbstractCrawler<Node> {
 
 	@Override
 	public Stream<Element> find(String card) {
-		return parse(card).stream();
+        return this.parse(card).stream();
 	}
 
 	private Elements parse(String card) {
 		Document doc = null;
 		try {
-			doc = Jsoup.connect(config.getSearchUrl(card)).get();// .proxy("proxy.panamericano.com.br", 8080).get();
-		} catch (IOException e) {
-			Logger.error(e, "Could not perform HTTP request");
-		} catch (URISyntaxException e) {
-			Logger.error(e, "Invalid URL built for card: ".concat(card));
-		}
+            doc = Jsoup.connect(this.config.getSearchUrl(card)).get();// .proxy("proxy.panamericano.com.br",
+                                                                      // 8080).get();
 		Elements rows = doc.getElementsByAttributeValue("mp", "2");
-
-		if (rows == null)
+            if (rows == null) {
 			throw new CardNotFoundException(card.concat(" not found!"));
-
+            }
 		Logger.info("Found data for ".concat(card));
 		return rows;
 	}
-
+        catch (IOException e) {
+            Logger.error(e, "Could not perform HTTP request");
+            e.printStackTrace();
+        }
+        catch (URISyntaxException e) {
+            Logger.error(e, "Invalid URL built for card: ".concat(card));
+        }
+        return new Elements().empty();
+    }
 }
