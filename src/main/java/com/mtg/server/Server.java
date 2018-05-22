@@ -7,7 +7,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackages = { "com.mtg.controller" })
+@ComponentScan(basePackages = { "com.mtg" })
 @EnableCaching
 public class Server {
 
