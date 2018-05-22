@@ -2,6 +2,7 @@ package com.mtg.crawler;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.pmw.tinylog.Logger;
@@ -25,7 +26,7 @@ public abstract class AbstractCrawler<T> implements Crawler<T> {
 	}
 
 	private final Config buildConfig() throws IOException {
-		var path = Paths.get(StaticConfig.CONFIG_RESOURCE);
+		Path path = Paths.get(StaticConfig.CONFIG_RESOURCE);
 		return JsonIterator.deserialize(Files.readAllBytes(path), Config.class);
 	}
 

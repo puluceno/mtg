@@ -24,8 +24,8 @@ eclipse {
     }
 }
 
-sourceCompatibility = 1.10
-targetCompatibility = 1.10
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 
 jar {
@@ -46,7 +46,6 @@ dependencies {
         exclude module: 'spring-boot-starter-tomcat'        
     }
     compile("org.springframework.boot:spring-boot-starter-jetty")
-    //compile("org.springframework.boot:spring-boot-starter-cache")    
     compile('org.springframework.boot:spring-boot-starter-data-redis')
     
 	compile group: 'org.jsoup', name: 'jsoup', version: '1.+'

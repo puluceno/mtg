@@ -18,6 +18,7 @@ import com.mtg.model.Search;
 public class FilterBusiness<T> extends AbstractBusiness {
 
 	private static class Helper {
+
 		private static final Business<Result> INSTANCE = new FilterBusiness<Card>();
 	}
 
@@ -31,16 +32,18 @@ public class FilterBusiness<T> extends AbstractBusiness {
 	}
 
 	private Object find(String cards) {
-		var search = JsonIterator.deserialize(cards, new TypeLiteral<List<Search>>() {
+		List<Search> search = JsonIterator.deserialize(cards, new TypeLiteral<List<Search>>() {
 		});
 
 		Logger.info("Requested data for " + search.size() + " cards.");
 
 		return search.parallelStream().map(s -> {
 			try {
-				return new Card(s.getName(), buildStream(s).filter(r -> r.getQty() >= s.getQty())
-						.filter(r -> s.isFoil() ? r.isFoil() == s.isFoil() : true)
-						.limit(s.getLimit() > 0 ? s.getLimit() : Integer.MAX_VALUE).collect(Collectors.toList()));
+				return new Card(s.getName(),
+						buildStream(s).filter(r -> r.getQty() >= s.getQty())
+								.filter(r -> s.isFoil() ? r.isFoil() == s.isFoil() : true)
+								.limit(s.getLimit() > 0 ? s.getLimit() : Integer.MAX_VALUE)
+								.collect(Collectors.toList()));
 			} catch (CardNotFoundException e) {
 				Logger.info(e.getMessage());
 				return new Card(e.getMessage(), null);

@@ -34,7 +34,6 @@ public class CacheConfig extends CachingConfigurerSupport {
 
 	@Bean
 	public CacheManager cacheManager(RedisTemplate<String, Object> redisTemplate) {
-		SimpleCacheManager c = new SimpleCacheManager();
-		return c;
+		return new SimpleCacheManager();
 	}
 }
