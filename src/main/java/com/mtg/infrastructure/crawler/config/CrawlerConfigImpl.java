@@ -1,32 +1,33 @@
-package com.mtg.model;
+package com.mtg.infrastructure.crawler.config;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class Config {
-	private String baseUrl;
+public class CrawlerConfigImpl implements CrawlerConfig {
+
 	private String searchUrl;
-	private String queryInput;
 	private String baseTable;
 
-	public Config() {
+	public CrawlerConfigImpl() {
 		// intentionally left in blank
 	}
 
-	public String getBaseUrl() {
-		return baseUrl;
-	}
-
+	@Override
 	public String getSearchUrl(String card) throws URISyntaxException {
 		return new URI(searchUrl.concat(card.replaceAll(" ", "+"))).toASCIIString();
 	}
 
-	public String getQueryInput() {
-		return queryInput;
+	public void setSearchUrl(String searchUrl) {
+		this.searchUrl = searchUrl;
 	}
 
+	@Override
 	public String getBaseTable() {
 		return baseTable;
+	}
+
+	public void setBaseTable(String baseTable) {
+		this.baseTable = baseTable;
 	}
 
 }

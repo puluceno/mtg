@@ -1,6 +1,0 @@
-{
-	"baseUrl": "https://www.ligamagic.com",
-	"queryInput": "query",
-	"baseTable": "mp=\"2\"",
-	"searchUrl": "https://www.ligamagic.com/?view=cards%2Fsearch&card="
-}

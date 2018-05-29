@@ -1,8 +1,16 @@
 package com.mtg.business.impl;
 
-import com.mtg.business.AbstractBusiness;
+import org.springframework.stereotype.Component;
 
+import com.mtg.business.AbstractBusiness;
+import com.mtg.infrastructure.crawler.Crawler;
+
+@Component
 public class GroupBusiness extends AbstractBusiness {
+
+	public GroupBusiness(Crawler crawler) {
+		super(crawler);
+	}
 
 	@Override
 	public String findPrices(String cards) {

@@ -4,26 +4,24 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.pmw.tinylog.Logger;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 
 import com.jsoniter.JsonIterator;
 import com.jsoniter.output.JsonStream;
 import com.jsoniter.spi.TypeLiteral;
 import com.mtg.business.AbstractBusiness;
-import com.mtg.business.Business;
 import com.mtg.exception.CardNotFoundException;
+import com.mtg.infrastructure.crawler.Crawler;
 import com.mtg.model.Card;
-import com.mtg.model.Result;
 import com.mtg.model.Search;
 
+@Primary
+@Component
 public class FilterBusiness<T> extends AbstractBusiness {
 
-	private static class Helper {
-
-		private static final Business<Result> INSTANCE = new FilterBusiness<Card>();
-	}
-
-	public static Business<Result> getInstance() {
-		return Helper.INSTANCE;
+	public FilterBusiness(Crawler crawler) {
+		super(crawler);
 	}
 
 	@Override
@@ -31,7 +29,7 @@ public class FilterBusiness<T> extends AbstractBusiness {
 		return JsonStream.serialize(find(cards));
 	}
 
-	private Object find(String cards) {
+	private List<Card> find(String cards) {
 		List<Search> search = JsonIterator.deserialize(cards, new TypeLiteral<List<Search>>() {
 		});
 

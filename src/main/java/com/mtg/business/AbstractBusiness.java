@@ -6,11 +6,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
 
 import com.jsoniter.spi.JsoniterSpi;
-import com.mtg.crawler.Crawler;
-import com.mtg.crawler.impl.JsoupCrawler;
+import com.mtg.infrastructure.crawler.Crawler;
 import com.mtg.model.Result;
 import com.mtg.model.Search;
 import com.mtg.model.SearchDefault;
@@ -19,10 +17,11 @@ import com.mtg.model.enumtype.State;
 public abstract class AbstractBusiness implements Business<Result> {
 
 	private static final String CLASS = "class";
-	private Crawler<Node> crawler = JsoupCrawler.getInstance();
+	private final Crawler crawler;
 	private Pattern digitOnly;
 
-	public AbstractBusiness() {
+	public AbstractBusiness(Crawler crawler) {
+		this.crawler = crawler;
 		this.digitOnly = Pattern.compile("\\d+");
 		JsoniterSpi.registerTypeImplementation(Search.class, SearchDefault.class);
 	}
