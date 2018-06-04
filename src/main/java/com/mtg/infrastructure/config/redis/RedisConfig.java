@@ -9,6 +9,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("redis")
 public interface RedisConfig {
 
+	public boolean isEnabled();
+
 	public String getHost();
 
 	public String getType();

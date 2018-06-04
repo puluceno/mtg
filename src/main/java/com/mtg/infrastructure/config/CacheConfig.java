@@ -37,5 +37,4 @@ public class CacheConfig extends CachingConfigurerSupport {
 						.fromSerializer(new GenericJackson2JsonRedisSerializer()));
 		return RedisCacheManager.builder(redisConnectionFactory()).cacheDefaults(cacheConfiguration).build();
 	}
-
 }

@@ -32,7 +32,8 @@ public class JsoupCrawler implements Crawler {
 	private Elements parse(String card) {
 		Document doc = null;
 		try {
-			doc = Jsoup.connect(config.getSearchUrl(card)).proxy("proxy.panamericano.com.br", 8080).get();
+			doc = Jsoup.connect(config.getSearchUrl(card)).get();
+			// .proxy("proxy.panamericano.com.br", 8080).get();
 
 			Elements rows = doc.getElementsByAttributeValue("mp", "2");
 			if (rows == null) {

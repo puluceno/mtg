@@ -18,7 +18,7 @@ public class CardController {
 
 	private final Business<Result> businessController;
 
-	@Cacheable(value = "cards", cacheManager = "cacheManager")
+	@Cacheable(value = "cards", cacheManager = "cacheManager", condition = "@redisConfig.isEnabled()")
 	@PostMapping
 	public String getCardPrices(@RequestBody String search) {
 		return businessController.findPrices(search);
