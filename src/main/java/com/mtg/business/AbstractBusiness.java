@@ -7,11 +7,10 @@ import java.util.stream.Stream;
 
 import org.jsoup.nodes.Element;
 
-import com.jsoniter.spi.JsoniterSpi;
 import com.mtg.infrastructure.crawler.Crawler;
+import com.mtg.model.Card;
 import com.mtg.model.Result;
 import com.mtg.model.Search;
-import com.mtg.model.SearchDefault;
 import com.mtg.model.enumtype.State;
 
 public abstract class AbstractBusiness implements Business<Result> {
@@ -23,25 +22,26 @@ public abstract class AbstractBusiness implements Business<Result> {
 	public AbstractBusiness(Crawler crawler) {
 		this.crawler = crawler;
 		this.digitOnly = Pattern.compile("\\d+");
-		JsoniterSpi.registerTypeImplementation(Search.class, SearchDefault.class);
 	}
 
 	public final Pattern getDigitOnly() {
 		return digitOnly;
 	}
 
-	protected Stream<Result> buildStream(Search card) {
+	protected Stream<Card> buildStream(Search card) {
 		return crawler.find(card.getName()).map(e -> {
 			BigDecimal price = getPrice(e);
-			return addDetails(getStore(e), getEdition(e), getFoil(e), getLanguage(e), getState(e), getQty(e),
-					price, getTotalPrice(price, card.getQty()));
+			return addDetails(card.getName(), getStore(e), getEdition(e), getFoil(e), getLanguage(e),
+					getState(e), getQty(e), price);
 		});
 	}
 
-	private Result addDetails(String store, String edition, boolean foil, String language, String state,
-			Integer qty, BigDecimal price, BigDecimal totalPrice) {
-		return new Result(store, edition, foil, language, state, qty, price, totalPrice);
+	private Card addDetails(String name, String store, String edition, boolean foil, String language,
+			String state, Integer qty, BigDecimal price) {
+		return new Card(name, store, edition, foil, language, state, qty, price);
 	}
+
+	// TODO: add getName()
 
 	@Override
 	public String getStore(Element e) {

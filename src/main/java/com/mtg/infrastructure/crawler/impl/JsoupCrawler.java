@@ -26,7 +26,7 @@ public class JsoupCrawler implements Crawler {
 
 	@Override
 	public Stream<Element> find(String card) {
-		return this.parse(card).stream();
+		return this.parse(card).parallelStream();
 	}
 
 	private Elements parse(String card) {

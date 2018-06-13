@@ -6,7 +6,7 @@ import org.jsoup.nodes.Element;
 
 public interface Business<T> {
 
-	public String findPrices(String cards);
+	public Object findPrices(String cards);
 
 	public String getStore(Element e);
 
