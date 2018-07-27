@@ -1,5 +1,7 @@
 package com.mtg.business.impl;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,8 +45,12 @@ public class FilterBusiness<T> extends AbstractBusiness {
 
 					if (v.size() >= search.size() && r.getName().equalsIgnoreCase(s.getName())) {
 						Map<Object, Object> key = new HashMap<>();
-						key.put(k, v.stream().collect(
-								Collectors.summingDouble(c -> c.getPrice().doubleValue() * s.getQty())));
+						key.put(k,
+								BigDecimal
+										.valueOf(v.stream()
+												.collect(Collectors.summingDouble(
+														c -> c.getPrice().doubleValue() * s.getQty())))
+										.setScale(2, RoundingMode.HALF_UP));
 						end.put(key, v);
 					}
 				});
